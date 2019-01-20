@@ -28,10 +28,16 @@ var promise = get(
   "https://my-json-server.typicode.com/tawazlwb/my_json_api/posts/1"
 );
 
-promise.then(data => {
-  console.log(data);
-});
-
-promise.catch(error => {
-  console.log(error);
-});
+promise
+  .then(post => {
+    console.log("Post:\n" + post + "\n");
+    return get(
+      "https://my-json-server.typicode.com/tawazlwb/my_json_api/profile"
+    );
+  })
+  .then(profile => {
+    console.log("Profile:\n" + profile + "\n");
+  })
+  .catch(error => {
+    console.log(error);
+  });
