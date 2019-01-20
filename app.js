@@ -1,30 +1,35 @@
-const { XMLHttpRequest } = require("xmlhttprequest");
+var request = require("request");
 
-function get(url) {
+process.on("unhandledRejection", (reason, p) => {
+  console.log("Unhandled Rejection at: Promise", p, "reason:", reason);
+  // application specific logging, throwing an error, or other logic here
+});
+
+function get(URL) {
   return new Promise((resolve, reject) => {
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", url, true);
-
-    xhttp.onload = () => {
-      if (xhttp.status === 200) {
-        resolve(xhttp.response);
-      } else {
-        reject(xhttp.statusText);
+    request.get(
+      {
+        url: URL
+      },
+      function(error, response, body) {
+        if (error) {
+          reject(error);
+        } else if (response.statusCode !== 200) {
+          reject(new Error(response.statusCode + " " + response.statusMessage));
+        } else if (response.statusCode === 200) {
+          resolve(body);
+        }
       }
-    };
-
-    xhttp.onerror = () => {
-      reject(xhttp.statusText);
-    };
-
-    xhttp.send();
+    );
   });
 }
 
-var promise = get("https://jsonplaceholder.typicode.com/todos/1");
+var promise = get(
+  "https://my-json-server.typicode.com/tawazlwb/my_json_api/posts/1"
+);
 
-promise.then(tweets => {
-  console.log(tweets);
+promise.then(data => {
+  console.log(data);
 });
 
 promise.catch(error => {
