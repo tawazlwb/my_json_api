@@ -6,16 +6,27 @@ global.document = document;
 
 var $ = require("jquery")(window);
 
-$.get("https://my-json-server.typicode.com/tawazlwb/my_json_api/posts/1")
-  .then(post => {
-    console.log("\nPost:\n" + JSON.stringify(post, null, 4) + "\n");
-    return $.get(
-      "https://my-json-server.typicode.com/tawazlwb/my_json_api/profile"
-    );
-  })
-  .then(profile => {
-    console.log("Profile:\n" + JSON.stringify(profile, null, 4) + "\n");
-  })
-  .catch(error => {
-    console.log(error);
-  });
+genWrap(function*() {
+  var post = yield $.get(
+    "https://my-json-server.typicode.com/tawazlwb/my_json_api/posts/1"
+  );
+  console.log("\nPost:\n" + JSON.stringify(post, null, 4) + "\n");
+  var profile = yield $.get(
+    "https://my-json-server.typicode.com/tawazlwb/my_json_api/profile"
+  );
+  console.log("Profile: \n" + JSON.stringify(profile, null, 4) + "\n");
+});
+
+function genWrap(generator) {
+  let gen = generator();
+
+  function handle(yielded) {
+    if (!yielded.done) {
+      yielded.value.then(data => {
+        return handle(gen.next(data));
+      });
+    }
+  }
+
+  return handle(gen.next());
+}
