@@ -1,42 +1,20 @@
-var request = require("request");
+var jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+const { window } = new JSDOM();
+const { document } = new JSDOM("").window;
+global.document = document;
 
-process.on("unhandledRejection", (reason, p) => {
-  console.log("Unhandled Rejection at: Promise", p, "reason:", reason);
-  // application specific logging, throwing an error, or other logic here
-});
+var $ = require("jquery")(window);
 
-function get(URL) {
-  return new Promise((resolve, reject) => {
-    request.get(
-      {
-        url: URL
-      },
-      function(error, response, body) {
-        if (error) {
-          reject(error);
-        } else if (response.statusCode !== 200) {
-          reject(new Error(response.statusCode + " " + response.statusMessage));
-        } else if (response.statusCode === 200) {
-          resolve(body);
-        }
-      }
-    );
-  });
-}
-
-var promise = get(
-  "https://my-json-server.typicode.com/tawazlwb/my_json_api/posts/1"
-);
-
-promise
+$.get("https://my-json-server.typicode.com/tawazlwb/my_json_api/posts/1")
   .then(post => {
-    console.log("Post:\n" + post + "\n");
-    return get(
+    console.log("\nPost:\n" + JSON.stringify(post, null, 4) + "\n");
+    return $.get(
       "https://my-json-server.typicode.com/tawazlwb/my_json_api/profile"
     );
   })
   .then(profile => {
-    console.log("Profile:\n" + profile + "\n");
+    console.log("Profile:\n" + JSON.stringify(profile, null, 4) + "\n");
   })
   .catch(error => {
     console.log(error);
